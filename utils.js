@@ -5,10 +5,29 @@
         isArray: defaultIsArray || function () {
             return toString.call(obj) === '[object Array]'
         },
+
         isObject: function(data) {
             var toString = Object.prototype.toString
             var dataType = data instanceof Element ? 'element' : toString.call(data).replace(/\[object\s(.+)\]/, '$1').toLowerCase()
             return dataType
+        },
+
+        // 深拷贝
+        clone: function (obj) {
+            if (this.isObject(obj) !== 'object' && null == obj) {
+                return null
+            }
+            return null
+        },
+
+        isWeiXin: function () {
+            let ua = navigator.userAgent.toLowerCase()
+
+            if (ua.match(/micromessenger/i) + '' === 'micromessenger') {
+                return true
+            } else {
+                return false
+            }
         },
 
         localStorage: {
@@ -86,6 +105,80 @@
                 document.body.scrollTop = scrollV
                 document.body.scrollLeft = scrollH
             }
+        },
+
+        /**
+         * 获取url里指定的参数值
+         * @param url 链接
+         * @param key key 
+         */
+        getUrlAssignParams: function (key, url) {
+            let reg = new RegExp('(^|&)' + key + '=([^&]*)(&|$)', 'i')
+            if (!url) {
+                let currenturl = window.location.search.substr(1)
+                let res = currenturl.match(reg)
+                if (res != null) {
+                    return res[2]
+                }
+                return null
+            } else {
+                let arr = url.split('?')
+                if (arr.length === 1) {
+                    return null
+                }
+                let res =  arr[1].match(reg)
+                if (res != null) {
+                    return res[2]
+                }
+                return null 
+            }
+        },
+
+        /**
+         * 获取url里所有的参数值
+         * @param url 链接
+         */
+        getUrlAllParams: function (url) {
+            if (!url || url) {
+                let paramsobj = {}
+                let currenturl = window.location.search.substr(1)
+                if (currenturl) {
+                    currenturl = currenturl.split('&')
+                    if (currenturl.length === 1) {
+                        return null
+                    }
+                    currenturl.forEach(key => {
+                        let middle = key.indexOf('=')
+                        paramsobj[key.substr(0, middle)] = key.substr(middle + 1)
+                    })
+                    return paramsobj
+                }
+                return null
+            }
+            return null
+            // } else {
+            //     let arr = url.split('?')
+            //     if (arr.length === 1) {
+            //         return null
+            //     }
+            //     let res =  arr[1].match(reg)
+            //     if (res != null) {
+            //         return res[2]
+            //     }
+            //     return null 
+            // }
+        },
+
+        /** 
+         * 创建js
+         * @param url url地址
+         */
+        createJs: function (url) {
+            let filejs = document.createElement('script')
+            
+            filejs.setAttribute('scr', url)
+            // document.querySelectorAll('body')[0]
+            document.getElementsByTagName('body')[0].appendChild(filejs)
         },
 
         xhr: function (cors) {
