@@ -13,11 +13,22 @@
         },
 
         // 深拷贝
-        clone: function (obj) {
-            if (this.isObject(obj) !== 'object' && null == obj) {
-                return null
+        deepClone: function (obj) {
+            var copy
+            if (this.isObject(obj) === 'object') {
+                copy = {}
+                for (const key in obj) {
+                    copy[key] = this.deepClone(obj[key])
+                }
+            } else if (this.isArray(obj)) {
+                copy = []
+                obj.forEach(item => {
+                    copy.push(this.deepClone(item))
+                })
+            } else {
+                return obj
             }
-            return null
+            return copy
         },
 
         isWeiXin: function () {
@@ -62,6 +73,15 @@
             remove: function (name) {
                 window.sessionStorage.removeItem(name)
             }
+        },
+
+        getNowTime: function () {
+            let time = new Date()
+            return time.getFullYear() + '-' + this.addZero(time.getMonth() + 1) + '-' + this.addZero(time.getDate()) + '  ' + this.addZero(time.getHours()) + ':' + this.addZero(time.getMinutes()) + ':' + this.addZero(time.getSeconds())
+        },
+
+        addZero: function (n) {
+            return n < 10 ? '0' + n : n
         },
 
         isIosOrAndroid: function () {
@@ -180,6 +200,67 @@
             // document.querySelectorAll('body')[0]
             document.getElementsByTagName('body')[0].appendChild(filejs)
         },
+
+        getUUID: function () {
+            
+        },
+
+        // 数字相关类
+        numeral: {
+            getRandomNum () {
+                return Math.random().toString(32).substr(2)
+            },
+            getNowDate () {
+                let date = 1 * new Date()
+                let i = 0
+                while (date == 1 * new Date()) {
+                    i++
+                }
+                return date.toString(32) + i.toString(32)
+            }
+        },
+        Ua: function() {
+            return window.navigator.vender
+            (s = userAgent.match(/msie ([\d.]+)/)) ? browser.ie = s[1] : (s = userAgent.match(/firefox\/([\d.]+)/)) ? browser.firefox = s[1] : (s = userAgent.match(/chrome\/([\d.]+)/)) ? browser.chrome = s[1] : (s = userAgent.match(/opera.([\d.]+)/)) ? browser.opera = s[1] : (s = userAgent.match(/version\/([\d.]+).*safari/)) ? browser.safari = s[1] : 0;
+        },
+         getBrowse() {
+            let browser = {};
+            let userAgent = navigator.userAgent.toLowerCase();
+            let s;
+            (s = userAgent.match(/msie ([\d.]+)/)) ? browser.ie = s[1] : (s = userAgent.match(/firefox\/([\d.]+)/)) ? browser.firefox = s[1] : (s = userAgent.match(/chrome\/([\d.]+)/)) ? browser.chrome = s[1] : (s = userAgent.match(/opera.([\d.]+)/)) ? browser.opera = s[1] : (s = userAgent.match(/version\/([\d.]+).*safari/)) ? browser.safari = s[1] : 0;
+            let version = "";
+            if (browser.ie) {
+                version = 'IE ' + browser.ie;
+            }
+            else {
+                if (browser.firefox) {
+                    version = 'Firefox';
+                    // version = 'firefox ' + browser.firefox;
+                }
+                else {
+                    if (browser.chrome) {
+                        version = 'Chrome';
+                        // version = 'chrome ' + browser.chrome;
+                    }
+                    else {
+                        if (browser.opera) {
+                            version = 'Opera';
+                            // version = 'opera ' + browser.opera;
+                        }
+                        else {
+                            if (browser.safari) {
+                                version = 'Safari';
+                                // version = 'safari ' + browser.safari;
+                            }
+                            else {
+                                version = '未知浏览器';
+                            }
+                        }
+                    }
+                }
+            }
+            return version;
+        }
 
         xhr: function (cors) {
             if (cors) {
