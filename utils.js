@@ -176,17 +176,6 @@
                 return null
             }
             return null
-            // } else {
-            //     let arr = url.split('?')
-            //     if (arr.length === 1) {
-            //         return null
-            //     }
-            //     let res =  arr[1].match(reg)
-            //     if (res != null) {
-            //         return res[2]
-            //     }
-            //     return null 
-            // }
         },
 
         /** 
@@ -202,7 +191,7 @@
         },
 
         getUUID: function () {
-            
+            return this.numeral.getRandomNum () + '-' + this.numeral.getNowDate () + '-' + this.Ua()
         },
 
         // 数字相关类
@@ -219,49 +208,41 @@
                 return date.toString(32) + i.toString(32)
             }
         },
-        Ua: function() {
-            return window.navigator.vender
-            (s = userAgent.match(/msie ([\d.]+)/)) ? browser.ie = s[1] : (s = userAgent.match(/firefox\/([\d.]+)/)) ? browser.firefox = s[1] : (s = userAgent.match(/chrome\/([\d.]+)/)) ? browser.chrome = s[1] : (s = userAgent.match(/opera.([\d.]+)/)) ? browser.opera = s[1] : (s = userAgent.match(/version\/([\d.]+).*safari/)) ? browser.safari = s[1] : 0;
+        Ua: function () {
+            var uarr = window.navigator.userAgent.split(' ')
+            if (uarr.length < 1) {
+                return window.navigator.userAgent
+            }
+            var newarr = []
+            var str = ''
+            uarr.forEach(item => {
+                let i = item.indexOf('/')
+                if (i > -1) {
+                    str = item.substr(0 ,i)
+                    newarr.push(str)
+                }
+            })
+            var uainfo = ''
+            for (let j = 0; j < newarr.length; j++) {
+                uainfo += newarr[j] + '-'
+            }
+            return uainfo
         },
-         getBrowse() {
-            let browser = {};
-            let userAgent = navigator.userAgent.toLowerCase();
-            let s;
-            (s = userAgent.match(/msie ([\d.]+)/)) ? browser.ie = s[1] : (s = userAgent.match(/firefox\/([\d.]+)/)) ? browser.firefox = s[1] : (s = userAgent.match(/chrome\/([\d.]+)/)) ? browser.chrome = s[1] : (s = userAgent.match(/opera.([\d.]+)/)) ? browser.opera = s[1] : (s = userAgent.match(/version\/([\d.]+).*safari/)) ? browser.safari = s[1] : 0;
-            let version = "";
-            if (browser.ie) {
-                version = 'IE ' + browser.ie;
+        browserInfo: function () {
+            var browser = {
+                appname: 'unknown',
+                version: 0
+            },
+            userAgent = window.navigator.userAgent.toLowerCase()
+            if (/(msie|chrome|firefox|opera|netscape)\D+(\d[\d.]*)/.test(userAgent)) {
+                browser.appname = RegExp.$1
+                browser.version = RegExp.$2
+            } else if (/version\D+(\d[\d.]*).*safari/.test(userAgent)) { // safari
+                browser.appname = 'safari';
+                browser.version = RegExp.$2;
             }
-            else {
-                if (browser.firefox) {
-                    version = 'Firefox';
-                    // version = 'firefox ' + browser.firefox;
-                }
-                else {
-                    if (browser.chrome) {
-                        version = 'Chrome';
-                        // version = 'chrome ' + browser.chrome;
-                    }
-                    else {
-                        if (browser.opera) {
-                            version = 'Opera';
-                            // version = 'opera ' + browser.opera;
-                        }
-                        else {
-                            if (browser.safari) {
-                                version = 'Safari';
-                                // version = 'safari ' + browser.safari;
-                            }
-                            else {
-                                version = '未知浏览器';
-                            }
-                        }
-                    }
-                }
-            }
-            return version;
-        }
-
+            return browser;
+        },
         xhr: function (cors) {
             if (cors) {
                 if (typeof window.XMLHttpRequest !== void 0) {
