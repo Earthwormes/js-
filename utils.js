@@ -243,6 +243,21 @@
             }
             return browser;
         },
+
+        // //封装简单的promise方法
+        // First: function () {
+        //     return new Promise(function (resolve, reject)  {
+        //         let r = 11
+        //         //或者其他逻辑,得出想要的值,如果是则传递的匿名function中的resolve形参
+        //         if (r % 2 === 0) {
+        //             // 匿名函数  调用first方法时  .then的成功回调就是resolve
+        //             resolve('--成功结果--')
+        //         } else {
+        //             reject('--失败结果--')
+        //         }
+        //     })
+        // },
+
         xhr: function (cors) {
             if (cors) {
                 if (typeof window.XMLHttpRequest !== void 0) {
