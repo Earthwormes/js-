@@ -1,7 +1,20 @@
-(function () {
+(function (_global, fyTool) {
+
+    _global = _global || (function(){ return this || (0, eval)('this') }())
+
+    if (typeof module !== 'undefined' && module.exports) {
+        module.exports = fyTool()
+    } else if (typeof define === 'function' && define.amd) {
+        define(function() {return fyTool()})
+    } else {
+        !('fyTool' in _global) && (_global.fyTool = fyTool())
+    }
+    
+})(this, function () {
+
     const defaultIsArray = Array.isArray
 
-    const $qwer = {
+    return {
         isArray: defaultIsArray || function () {
             return toString.call(obj) === '[object Array]'
         },
@@ -9,7 +22,7 @@
         isObject: function(data) {
             var toString = Object.prototype.toString
             var dataType = data instanceof Element ? 'element' : toString.call(data).replace(/\[object\s(.+)\]/, '$1').toLowerCase()
-            return dataType
+            return dataType === 'object'
         },
 
         // 深拷贝
@@ -43,35 +56,29 @@
 
         localStorage: {
             get: function (name) {
-                if (typeof name === 'string') {
-                    window.localStorage.getItem(name)
-                }
-                return str = '类型得是string类型'
+                return window.localStorage.getItem(name)
             },
             
             set: function (name, value) {  
-                window.localStorage.setItem(name, value)
+                return window.localStorage.setItem(name, value)
             },
 
             remove: function (name) {
-                window.localStorage.removeItem(name)
+                return window.localStorage.removeItem(name)
             }
         },
 
         sessionStorage: {
             get: function (name) {
-                if (typeof name === 'string') {
-                    window.sessionStorage.getItem(name)
-                }
-                return str = '类型得是string类型'
+                return window.sessionStorage.getItem(name)
             },
 
             set: function (name, value) {
-                window.sessionStorage.setItem(name, value)
+                return window.sessionStorage.setItem(name, value)
             },
 
             remove: function (name) {
-                window.sessionStorage.removeItem(name)
+                return window.sessionStorage.removeItem(name)
             }
         },
 
@@ -90,14 +97,14 @@
                 return 'ios'
             }
 
-            if (ua.indexOf('Android') > -1 || u.indexOf('Adr') > -1) {
+            if (ua.indexOf('Android') > -1 || ua.indexOf('Adr') > -1) {
                 return 'android'
             }
 
             return false
         },
 
-        // ios上级页面不刷新问题
+        // ios上级页面读缓存问题
         iosPastRefresh: function () {
             if (isIosOrAndroid() === 'ios') {
                 window.onpageshow = function (e) {
@@ -111,16 +118,17 @@
 
         // 去掉url中hash值方法
         removeHash: function () {
-            let scrollV, scrollH, loc = window.location
+            let scrollV, scrollH
+            let location = window.location
             if ('pushState' in window.history)
                 // 往浏览器历史记录里推一条记录，如需要替换当前历史记录，更换成replaceState方法
-                window.history.pushState('', document.title, loc.pathname + loc.search)
+                window.history.pushState('', document.title, location.pathname + location.search)
             else {
 
                 scrollV = document.body.scrollTop
                 scrollH = document.body.scrollLeft
         
-                loc.hash = ''
+                location.hash = ''
         
                 document.body.scrollTop = scrollV
                 document.body.scrollLeft = scrollH
@@ -156,24 +164,18 @@
 
         /**
          * 获取url里所有的参数值
-         * @param url 链接
          */
-        getUrlAllParams: function (url) {
-            if (!url || url) {
-                let paramsobj = {}
-                let currenturl = window.location.search.substr(1)
-                if (currenturl) {
-                    currenturl = currenturl.split('&')
-                    if (currenturl.length === 1) {
-                        return null
-                    }
-                    currenturl.forEach(key => {
-                        let middle = key.indexOf('=')
-                        paramsobj[key.substr(0, middle)] = key.substr(middle + 1)
-                    })
-                    return paramsobj
-                }
-                return null
+        getUrlAllParams: function () {
+            // 只支持当前页面的url
+            let paramsobj = {}
+            let currenturl = window.location.search.substr(1)
+            if (currenturl) { 
+                currenturl = currenturl.split('&')
+                currenturl.forEach(key => {
+                    let middle = key.indexOf('=')
+                    paramsobj[key.substr(0, middle)] = key.substr(middle + 1)
+                })
+                return paramsobj
             }
             return null
         },
@@ -190,8 +192,11 @@
             document.getElementsByTagName('body')[0].appendChild(filejs)
         },
 
+        /**
+         * 获取设备UUID
+         */
         getUUID: function () {
-            return this.numeral.getRandomNum () + '-' + this.numeral.getNowDate () + '-' + this.Ua()
+            return this.numeral.getRandomNum () + '-' + this.numeral.getNowDate () + '-' + this.browserInfo().appname
         },
 
         // 数字相关类
@@ -208,32 +213,38 @@
                 return date.toString(32) + i.toString(32)
             }
         },
-        Ua: function () {
-            var uarr = window.navigator.userAgent.split(' ')
-            if (uarr.length < 1) {
-                return window.navigator.userAgent
-            }
-            var newarr = []
-            var str = ''
-            uarr.forEach(item => {
-                let i = item.indexOf('/')
-                if (i > -1) {
-                    str = item.substr(0 ,i)
-                    newarr.push(str)
-                }
-            })
-            var uainfo = ''
-            for (let j = 0; j < newarr.length; j++) {
-                uainfo += newarr[j] + '-'
-            }
-            return uainfo
-        },
+
+        // Ua: function () {
+        //     var uarr = window.navigator.userAgent.split(' ')
+        //     if (uarr.length < 1) {
+        //         return window.navigator.userAgent
+        //     }
+        //     var newarr = []
+        //     var str = ''
+        //     uarr.forEach(item => {
+        //         let i = item.indexOf('/')
+        //         if (i > -1) {
+        //             str = item.substr(0 ,i)
+        //             newarr.push(str)
+        //         }
+        //     })
+        //     var uainfo = ''
+        //     for (let j = 0; j < newarr.length; j++) {
+        //         uainfo += newarr[j] + '-'
+        //     }
+        //     return uainfo
+        // },
+
+        /**
+         * 浏览器相关信息
+         */
         browserInfo: function () {
             var browser = {
                 appname: 'unknown',
                 version: 0
             },
             userAgent = window.navigator.userAgent.toLowerCase()
+            // 手动填写已知浏览器 
             if (/(msie|chrome|firefox|opera|netscape)\D+(\d[\d.]*)/.test(userAgent)) {
                 browser.appname = RegExp.$1
                 browser.version = RegExp.$2
@@ -244,20 +255,65 @@
             return browser;
         },
 
-        // //封装简单的promise方法
-        // First: function () {
-        //     return new Promise(function (resolve, reject)  {
-        //         let r = 11
-        //         //或者其他逻辑,得出想要的值,如果是则传递的匿名function中的resolve形参
-        //         if (r % 2 === 0) {
-        //             // 匿名函数  调用first方法时  .then的成功回调就是resolve
-        //             resolve('--成功结果--')
-        //         } else {
-        //             reject('--失败结果--')
-        //         }
-        //     })
-        // },
+        /**
+         * 节流函数
+         * @param fn 需要节流的函数
+         * @param times 节流的时长
+         */
+        throttle: function (fn, times) {
 
+            if (!time) times = 2000
+            let lastTime = null
+        
+            return function () {
+                
+                let nowTime = new Date()
+                if (!lastTime || nowTime - lastTime > times) {
+                    fn.call(this, arguments)
+                    
+                } else {
+                    return '重新计算'
+                }
+                lastTime = nowTime
+            }
+            
+        },
+
+        /**
+         * 脱敏函数
+         * @param str 需脱敏字段 
+         */
+        DesensitizationMthods: function (str) {
+            if (str) {
+                // return str
+                let result = str + ''
+                switch (result.length) {
+                    case 2:
+                        return result.replace(/.*(?=.)/, '*')
+                        break;
+                    case 3: 
+                        return result.replace(/(?<=.).*(?=.)/, '*')
+                        break;
+                    case 4: 
+                        return result.replace(/(?<=.).*(?=.)/, '**')
+                        break;
+                    case 11:
+                        // ${'*'.repeat(result.length - 7)}
+                        return result.replace(/^(.{3})(?:\w+)(.{4})$/g, `$1${'*'.repeat(result.length - 7)}$2`)
+                        break;
+                    case 18:
+                        return result.replace(/^(.{3})(?:\w+)(.{4})$/g, `$1${'*'.repeat(result.length - 7)}$2`)
+                        break;
+                    default:
+                        return str
+                }
+            }
+            return false
+        },
+
+        /**
+         * 对底层xhr的封装
+         */
         xhr: function (cors) {
             if (cors) {
                 if (typeof window.XMLHttpRequest !== void 0) {
@@ -284,12 +340,4 @@
             }
         }
     }
-
-    
-
-    if (window.$qwer) {
-        window.$rewq = $qwer
-    } else {
-        window.$qwer = $qwer
-    }
-})()
+})
